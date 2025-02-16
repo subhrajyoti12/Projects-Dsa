@@ -1,0 +1,177 @@
+class Product {
+    String name;
+    double price;
+    int stock;
+
+    public Product(String name, double price, int stock) {
+        this.name = name;
+        this.price = price;
+        this.stock = stock;
+    }
+}
+// Cart class to manage user cart
+class Cart {
+    private Map<Product, Integer> cartItems = new HashMap<>();
+
+    public void addToCart(Product product, int quantity) {
+        if (product.stock >= quantity) {
+            cartItems.put(product, cartItems.getOrDefault(product, 0) + quantity);
+            product.stock -= quantity; // Update stock
+            System.out.println("✅ " + quantity + "x " + product.name + " added to cart!");
+        } else {
+            System.out.println("❌ Not enough stock for " + product.name);
+        }
+    }
+
+    public void viewCart() {
+        if (cartItems.isEmpty()) {
+            System.out.println("🛒 Your cart is empty.");
+        } else {
+            System.out.println("\n🛍 Cart Items:");
+            double total = 0;
+            for (Map.Entry<Product, Integer> entry : cartItems.entrySet()) {
+                double price = entry.getKey().price * entry.getValue();
+                System.out.println(entry.getKey().name + " x " + entry.getValue() + " - ₹" + price);
+                total += price;
+            }
+            System.out.println("💰 Total: ₹" + total);
+        }
+    }
+
+    public double checkout() {
+        double total = 0;
+        for (Map.Entry<Product, Integer> entry : cartItems.entrySet()) {
+            total += entry.getKey().price * entry.getValue();
+        }
+        cartItems.clear();
+        return total;
+    }
+}
+
+// OrderManager to handle product listings and transactions
+class OrderManager {
+    private HashMap<String, Product> productCatalog = new HashMap<>();
+    private Cart userCart = new Cart();
+
+    public void addProduct(String name, double price, int stock) {
+        productCatalog.put(name.toLowerCase(), new Product(name, price, stock));
+    }
+
+    public void displayProducts() {
+        System.out.println("\n🛒 Available Products:");
+        for (Product product : productCatalog.values()) {
+            System.out.println("📌 " + product.name + " - ₹" + product.price + " (" + product.stock + " in stock)");
+        }
+    }
+
+    public void searchProduct(String name) {
+        Product product = productCatalog.get(name.toLowerCase());
+        if (product != null) {
+            System.out.println("\n🔍 Product Found: " + product.name);
+            System.out.println("💰 Price: ₹" + product.price + " | Stock: " + product.stock);
+        } else {
+            System.out.println("❌ Product not found. Try searching for something else!");
+        }
+    }
+
+    public void addToCart(String name, int quantity) {
+        Product product = productCatalog.get(name.toLowerCase());
+        if (product != null) {
+            userCart.addToCart(product, quantity);
+        } else {
+            System.out.println("❌ Product not available.");
+        }
+    }
+
+    public void viewCart() {
+        userCart.viewCart();
+    }
+
+    public void checkout() {
+        double totalAmount = userCart.checkout();
+        if (totalAmount > 0) {
+            System.out.println("\n💳 Processing Payment...");
+            System.out.println("✅ Payment of ₹" + totalAmount + " successful! Your order is confirmed. 🎉");
+        } else {
+            System.out.println("❌ Your cart is empty. Add items before checkout.");
+        }
+    }
+}
+
+// Main Class
+public class EcommerceSimulation {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        OrderManager store = new OrderManager();
+
+        // Adding a wide range of products (50+ items)
+        String[][] products = {
+                {"Laptop", "50000", "5"}, {"Smartphone", "25000", "10"}, {"Tablet", "18000", "8"},
+                {"Headphones", "3000", "20"}, {"Smartwatch", "7000", "12"}, {"Bluetooth Speaker", "3500", "15"},
+                {"Gaming Console", "45000", "5"}, {"Keyboard", "1500", "25"}, {"Wireless Mouse", "1000", "30"},
+                {"Monitor", "12000", "6"}, {"External Hard Drive", "6000", "10"}, {"SSD 1TB", "9000", "7"},
+                {"Air Conditioner", "35000", "3"}, {"Refrigerator", "30000", "4"}, {"Microwave Oven", "12000", "5"},
+                {"Washing Machine", "28000", "6"}, {"Smart TV", "40000", "7"}, {"Electric Kettle", "2500", "12"},
+                {"Mixer Grinder", "5000", "9"}, {"Rice Cooker", "3500", "8"}, {"Air Fryer", "8500", "6"},
+                {"Running Shoes", "5000", "10"}, {"Sneakers", "4500", "8"}, {"Formal Shoes", "6000", "7"},
+                {"Men's Jacket", "4000", "5"}, {"Men's Jeans", "2500", "12"}, {"Women's Dress", "3500", "15"},
+                {"Backpack", "2000", "20"}, {"Office Chair", "9000", "5"}, {"Study Table", "15000", "4"},
+                {"Bookshelf", "7000", "6"}, {"Fitness Band", "4500", "8"}, {"Treadmill", "50000", "3"},
+                {"Dumbbells Set", "5000", "10"}, {"Yoga Mat", "1500", "15"}, {"Tennis Racket", "4500", "8"},
+                {"Football", "1500", "20"}, {"Cricket Bat", "3000", "12"}, {"Badminton Kit", "4000", "10"}
+        };
+
+        for (String[] product : products) {
+            store.addProduct(product[0], Double.parseDouble(product[1]), Integer.parseInt(product[2]));
+        }
+
+        System.out.println("\n👋 Welcome to **E-Commerce Simulator**!");
+        System.out.println("🛒 Explore a massive range of products and shop easily.");
+        System.out.println("⚡ Let's get started!");
+
+        while (true) {
+            System.out.println("\n📌 Choose an action:");
+            System.out.println("1️⃣ View Products");
+            System.out.println("2️⃣ Search for a Product");
+            System.out.println("3️⃣ Add to Cart");
+            System.out.println("4️⃣ View Cart");
+            System.out.println("5️⃣ Checkout");
+            System.out.println("6️⃣ Exit");
+
+            System.out.print("👉 Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (choice) {
+                case 1:
+                    store.displayProducts();
+                    break;
+                case 2:
+                    System.out.print("🔍 Enter product name: ");
+                    String searchName = scanner.nextLine();
+                    store.searchProduct(searchName);
+                    break;
+                case 3:
+                    System.out.print("🛒 Enter product name: ");
+                    String productName = scanner.nextLine();
+                    System.out.print("🔢 Enter quantity: ");
+                    int quantity = scanner.nextInt();
+                    store.addToCart(productName, quantity);
+                    break;
+                case 4:
+                    store.viewCart();
+                    break;
+                case 5:
+                    store.checkout();
+                    break;
+                case 6:
+                    System.out.println("👋 Thank you for shopping! Exiting...");
+                    scanner.close();
+                    return;
+                default:
+                    System.out.println("❌ Invalid choice. Try again.");
+            }
+        }
+    }
+}
+
