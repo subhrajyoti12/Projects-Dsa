@@ -1,0 +1,133 @@
+import java.util.*;
+
+/**
+ * Represents a financial transaction (income or expense).
+ */
+class Transaction {
+    String type, category;
+    double amount;
+    Date date;
+
+    public Transaction(String type, String category, double amount) {
+        this.type = type;
+        this.category = category;
+        this.amount = amount;
+        this.date = new Date(); // Auto-assign current date
+    }
+}
+
+/**
+ * Expense Tracker System to manage personal finances.
+ */
+class ExpenseTracker {
+    private final List<Transaction> transactions = new ArrayList<>();
+    private final Set<String> validCategories = new HashSet<>(Arrays.asList(
+            "Food", "Rent", "Transport", "Shopping", "Entertainment", "Bills", "Salary", "Freelance", "Other"
+    ));
+    private double totalIncome = 0;
+    private double totalExpenses = 0;
+
+    /**
+     * Adds an income or expense transaction.
+     */
+    public void addTransaction(String type, String category, double amount) {
+        if (!validCategories.contains(category)) {
+            System.out.println("❌ Invalid category! Choose from: " + validCategories);
+            return;
+        }
+        transactions.add(new Transaction(type, category, amount));
+        if (type.equalsIgnoreCase("income")) {
+            totalIncome += amount;
+        } else {
+            totalExpenses += amount;
+        }
+        System.out.println("✅ Transaction added successfully!");
+    }
+
+    /**
+     * Displays all transactions with details.
+     */
+    public void viewTransactions() {
+        if (transactions.isEmpty()) {
+            System.out.println("📌 No transactions recorded yet.");
+            return;
+        }
+        System.out.println("\n📜 Transaction History:");
+        for (Transaction t : transactions) {
+            System.out.printf("[%s] %s - ₹%.2f (Category: %s, Date: %s)\n",
+                    t.type.toUpperCase(), t.type.equalsIgnoreCase("income") ? "+" : "-",
+                    t.amount, t.category, t.date.toString());
+        }
+    }
+
+    /**
+     * Generates and displays a financial summary.
+     */
+    public void generateReport() {
+        double netBalance = totalIncome - totalExpenses;
+        System.out.println("\n💰 Financial Summary:");
+        System.out.printf("🔹 Total Income: ₹%.2f\n", totalIncome);
+        System.out.printf("🔹 Total Expenses: ₹%.2f\n", totalExpenses);
+        System.out.printf("🔹 Net Balance: ₹%.2f (%s)\n", netBalance, (netBalance >= 0 ? "Surplus ✅" : "Deficit ❌"));
+    }
+}
+
+/**
+ * Main class to run the Personal Expense Tracker.
+ */
+public class PersonalExpenseTracker {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        ExpenseTracker tracker = new ExpenseTracker();
+
+        System.out.println("\n👋 Welcome to **Personal Expense Tracker**!");
+        System.out.println("📊 Manage your finances smartly and efficiently.");
+
+        while (true) {
+            System.out.println("\n📌 Choose an option:");
+            System.out.println("1️⃣ Add Income");
+            System.out.println("2️⃣ Add Expense");
+            System.out.println("3️⃣ View Transactions");
+            System.out.println("4️⃣ Generate Financial Report");
+            System.out.println("5️⃣ Exit");
+
+            System.out.print("👉 Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // Consume newline
+
+            switch (choice) {
+                case 1:
+                    System.out.print("💰 Enter income amount: ₹");
+                    double income = scanner.nextDouble();
+                    scanner.nextLine(); // Consume newline
+                    tracker.addTransaction("income", "Salary", income);
+                    break;
+
+                case 2:
+                    System.out.print("💸 Enter expense amount: ₹");
+                    double expense = scanner.nextDouble();
+                    scanner.nextLine(); // Consume newline
+                    System.out.print("📂 Enter category (Food, Rent, Transport, Shopping, etc.): ");
+                    String category = scanner.nextLine();
+                    tracker.addTransaction("expense", category, expense);
+                    break;
+
+                case 3:
+                    tracker.viewTransactions();
+                    break;
+
+                case 4:
+                    tracker.generateReport();
+                    break;
+
+                case 5:
+                    System.out.println("👋 Thank you for using the Expense Tracker. Stay financially smart! 🚀");
+                    scanner.close();
+                    return;
+
+                default:
+                    System.out.println("❌ Invalid choice! Please enter a valid option.");
+            }
+        }
+    }
+}
