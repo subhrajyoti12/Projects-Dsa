@@ -1,0 +1,215 @@
+import java.util.*;
+
+/**
+ * Represents a task in the task management system.
+ */
+class Task {
+    private static int taskCounter = 1;
+    private final int id;
+    private String title, description, status;
+    private Date dueDate;
+
+    public Task(String title, String description, Date dueDate) {
+        this.id = taskCounter++;
+        this.title = title;
+        this.description = description;
+        this.status = "Pending"; // Default status
+        this.dueDate = dueDate;
+    }
+
+    public int getId() { return id; }
+    public String getTitle() { return title; }
+    public String getDescription() { return description; }
+    public String getStatus() { return status; }
+    public Date getDueDate() { return dueDate; }
+
+    public void updateTask(String title, String description, Date dueDate) {
+        this.title = title;
+        this.description = description;
+        this.dueDate = dueDate;
+    }
+
+    public void changeStatus(String newStatus) {
+        if (Arrays.asList("Pending", "In Progress", "Completed").contains(newStatus)) {
+            this.status = newStatus;
+        } else {
+            System.out.println("❌ Invalid status! Choose from Pending, In Progress, or Completed.");
+        }
+    }
+
+    public void displayTask() {
+        System.out.printf("📝 Task #%d: %s\n📌 Description: %s\n📅 Due Date: %s\n📊 Status: %s\n\n",
+                id, title, description, dueDate.toString(), status);
+    }
+}
+
+/**
+ * Manages users and their assigned tasks.
+ */
+class User {
+    private final String username;
+    private final List<Task> tasks = new ArrayList<>();
+
+    public User(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() { return username; }
+
+    public void addTask(Task task) {
+        tasks.add(task);
+    }
+
+    public void deleteTask(int taskId) {
+        tasks.removeIf(task -> task.getId() == taskId);
+    }
+
+    public void viewTasks() {
+        if (tasks.isEmpty()) {
+            System.out.println("📭 No tasks found for " + username);
+            return;
+        }
+        System.out.println("📂 Tasks for " + username + ":");
+        tasks.forEach(Task::displayTask);
+    }
+
+    public void filterTasksByStatus(String status) {
+        tasks.stream().filter(task -> task.getStatus().equalsIgnoreCase(status))
+                .forEach(Task::displayTask);
+    }
+}
+
+/**
+ * Main system to manage users and tasks.
+ */
+class TaskManagementSystem {
+    private final Map<String, User> users = new HashMap<>();
+    private final Scanner scanner = new Scanner(System.in);
+
+    public void addUser(String username) {
+        if (users.containsKey(username)) {
+            System.out.println("❌ User already exists!");
+            return;
+        }
+        users.put(username, new User(username));
+        System.out.println("✅ User " + username + " added successfully!");
+    }
+
+    public void assignTask(String username) {
+        User user = users.get(username);
+        if (user == null) {
+            System.out.println("❌ User not found!");
+            return;
+        }
+
+        System.out.print("📝 Enter task title: ");
+        String title = scanner.nextLine();
+        System.out.print("📌 Enter task description: ");
+        String description = scanner.nextLine();
+        System.out.print("📅 Enter due date (YYYY-MM-DD): ");
+        String dueDateStr = scanner.nextLine();
+
+        try {
+            Date dueDate = new SimpleDateFormat("yyyy-MM-dd").parse(dueDateStr);
+            Task newTask = new Task(title, description, dueDate);
+            user.addTask(newTask);
+            System.out.println("✅ Task assigned successfully!");
+        } catch (Exception e) {
+            System.out.println("❌ Invalid date format. Use YYYY-MM-DD.");
+        }
+    }
+
+    public void deleteTask(String username) {
+        User user = users.get(username);
+        if (user == null) {
+            System.out.println("❌ User not found!");
+            return;
+        }
+        user.viewTasks();
+        System.out.print("🗑 Enter Task ID to delete: ");
+        int taskId = scanner.nextInt();
+        scanner.nextLine();
+        user.deleteTask(taskId);
+        System.out.println("✅ Task deleted successfully!");
+    }
+
+    public void viewTasks(String username) {
+        User user = users.get(username);
+        if (user == null) {
+            System.out.println("❌ User not found!");
+            return;
+        }
+        user.viewTasks();
+    }
+
+    public void filterTasks(String username) {
+        User user = users.get(username);
+        if (user == null) {
+            System.out.println("❌ User not found!");
+            return;
+        }
+        System.out.print("📊 Enter status to filter (Pending/In Progress/Completed): ");
+        String status = scanner.nextLine();
+        user.filterTasksByStatus(status);
+    }
+
+    public void menu() {
+        while (true) {
+            System.out.println("\n📌 Choose an action:");
+            System.out.println("1️⃣ Add User");
+            System.out.println("2️⃣ Assign Task to User");
+            System.out.println("3️⃣ View User's Tasks");
+            System.out.println("4️⃣ Delete Task");
+            System.out.println("5️⃣ Filter Tasks by Status");
+            System.out.println("6️⃣ Exit");
+
+            System.out.print("👉 Enter your choice: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            switch (choice) {
+                case 1:
+                    System.out.print("👤 Enter username: ");
+                    String username = scanner.nextLine();
+                    addUser(username);
+                    break;
+                case 2:
+                    System.out.print("👤 Enter username to assign task: ");
+                    String assignUser = scanner.nextLine();
+                    assignTask(assignUser);
+                    break;
+                case 3:
+                    System.out.print("👤 Enter username to view tasks: ");
+                    String viewUser = scanner.nextLine();
+                    viewTasks(viewUser);
+                    break;
+                case 4:
+                    System.out.print("👤 Enter username to delete a task: ");
+                    String deleteUser = scanner.nextLine();
+                    deleteTask(deleteUser);
+                    break;
+                case 5:
+                    System.out.print("👤 Enter username to filter tasks: ");
+                    String filterUser = scanner.nextLine();
+                    filterTasks(filterUser);
+                    break;
+                case 6:
+                    System.out.println("👋 Exiting Task Management System.");
+                    return;
+                default:
+                    System.out.println("❌ Invalid choice! Try again.");
+            }
+        }
+    }
+}
+
+/**
+ * Main class to start the Task Management System.
+ */
+public class TaskManagementApp {
+    public static void main(String[] args) {
+        TaskManagementSystem system = new TaskManagementSystem();
+        System.out.println("\n🚀 Welcome to Task Management System!");
+        system.menu();
+    }
+}
